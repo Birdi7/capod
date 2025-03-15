@@ -129,7 +129,6 @@ class WidgetProvider : AppWidgetProvider() {
         val device: PodDevice? = podMonitor.latestMainDevice()
 
         val layout = when {
-            !upgradeRepo.isPro() -> createUpgradeRequiredLayout(context)
             device is DualPodDevice -> {
                 val minWidth = widgetManager.getAppWidgetOptions(widgetId)
                     .getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH)
@@ -152,24 +151,6 @@ class WidgetProvider : AppWidgetProvider() {
             else -> createNoDeviceLayout(context)
         }
         widgetManager.updateAppWidget(widgetId, layout)
-    }
-
-    private suspend fun createUpgradeRequiredLayout(
-        context: Context
-    ) = RemoteViews(context.packageName, R.layout.widget_message_layout).apply {
-        log(TAG, VERBOSE) { "createUpgradeRequiredLayout(context=$context)" }
-        val pendingIntent: PendingIntent = PendingIntent.getActivity(
-            context,
-            0,
-            Intent(context, MainActivity::class.java),
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
-
-        setOnClickPendingIntent(R.id.widget_root, pendingIntent)
-
-        setTextViewText(R.id.primary, context.getString(R.string.upgrade_capod_label))
-        setTextViewText(R.id.secondary, context.getString(R.string.upgrade_capod_description))
-        setViewVisibility(R.id.secondary, View.VISIBLE)
     }
 
     private fun createUnknownPodLayout(
